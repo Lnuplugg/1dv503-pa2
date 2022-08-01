@@ -22,7 +22,7 @@ def tableNames():
 # Read csv files and replace all nan values in the dataframe with None, 
 # translates to NULL in the database.
 def readCsv():
-  eth = pd.read_csv('datasets/eth-data.csv')
+  eth = pd.read_csv('1dv503-pa2/datasets/eth-data.csv')
   poly = pd.read_csv('datasets/poly-data.csv')
   klaytn = pd.read_csv('datasets/klaytn-data.csv')
   solana = pd.read_csv('datasets/solana-data.csv')
@@ -36,10 +36,10 @@ def readCsv():
 
 def createDatabase():
   db = showDatabase()
-
-  inputData = readCsv()
   
   if db == None:
+    inputData = readCsv()
+
     cursor.execute("CREATE DATABASE " + dbName)
     createTables(inputData)
     insertData()
@@ -92,17 +92,17 @@ def insertData():
   except Error as e:
     print(e)
 
-def findHighest24h():
-  tablenames = tableNames()
-  query = "SELECT name, oneDayChange FROM " + dbName + ". Ethereum WHERE oneDayChange > 0"
+def findHighest24h(table):
+  # query = "SELECT name, oneDayChange FROM " + dbName + ". Ethereum WHERE oneDayChange > 0"
 
-  #query = "SELECT MAX(oneDayChange) FROM " + dbName + ' . Ethereum'
+  query = "SELECT MAX(oneDayChange) FROM " + dbName + ' . ' + table
   cursor.execute(query)
-  highest = cursor.fetchall()
+  highest = cursor.fetch()
   print(highest)
 
   # Return procent
   return highest[0] * 100
 
-createDatabase()
+readCsv()
+#createDatabase()
 #insertData()

@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 import database
 
 def gui():
-  print(database.findHighest24h())
+  
   layout = [[sg.Text(database.findHighest24h())], [sg.Button("OK")]]
 
   # Create the window
