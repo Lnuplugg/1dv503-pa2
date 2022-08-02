@@ -22,7 +22,7 @@ def tableNames():
 # Read csv files and replace all nan values in the dataframe with None, 
 # translates to NULL in the database.
 def readCsv():
-  eth = pd.read_csv('1dv503-pa2/datasets/eth-data.csv')
+  eth = pd.read_csv('datasets/eth-data.csv')
   poly = pd.read_csv('datasets/poly-data.csv')
   klaytn = pd.read_csv('datasets/klaytn-data.csv')
   solana = pd.read_csv('datasets/solana-data.csv')
@@ -97,12 +97,11 @@ def findHighest24h(table):
 
   query = "SELECT MAX(oneDayChange) FROM " + dbName + ' . ' + table
   cursor.execute(query)
-  highest = cursor.fetch()
-  print(highest)
+  highest = cursor.fetchone()
 
   # Return procent
-  return highest[0] * 100
+  return str(highest[0] * 100) + "%"
 
-readCsv()
-#createDatabase()
+#readCsv()
+createDatabase()
 #insertData()
