@@ -92,6 +92,7 @@ def insertData():
   except Error as e:
     print(e)
 
+# Aggregation MAX, MIN, AVG from gui.
 def change24h(aggregation, table):
   # query = "SELECT name, oneDayChange FROM " + dbName + ". Ethereum WHERE oneDayChange > 0"
 

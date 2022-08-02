@@ -3,6 +3,7 @@ import database
 
 def gui():
   tablesnames = database.tableNames()
+  # todo: add exit, clear buttons.
 
   layout = [
           [sg.Text("Function:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
@@ -65,5 +66,5 @@ def gui():
         elif values["-IN4-"] == True:
           print(prefix + database.change24h(aggregation, tablesnames[3]))
     # End Single table aggregations.
-    
+
   window.close()
