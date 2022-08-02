@@ -92,10 +92,10 @@ def insertData():
   except Error as e:
     print(e)
 
-def findHighest24h(table):
+def change24h(aggregation, table):
   # query = "SELECT name, oneDayChange FROM " + dbName + ". Ethereum WHERE oneDayChange > 0"
 
-  query = "SELECT MAX(oneDayChange) FROM " + dbName + ' . ' + table
+  query = "SELECT "+ aggregation + "(oneDayChange) FROM " + dbName + ' . ' + table
   cursor.execute(query)
   highest = cursor.fetchone()
 

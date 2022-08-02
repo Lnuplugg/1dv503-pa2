@@ -5,7 +5,7 @@ def gui():
   tablesnames = database.tableNames()
 
   layout = [
-          [sg.Text("Function:"), sg.Radio("MAX", "max", default=False, key="-MAX-")],
+          [sg.Text("Function:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
           [sg.Text("Chain"), sg.Radio(tablesnames[0], "ALL", default=False, key="-IN1-"), sg.Radio(tablesnames[1], "ALL", default=False, key="-IN2-"), sg.Radio(tablesnames[2], "ALL", default=False, key="-IN3-"), sg.Radio(tablesnames[3], "ALL", default=False, key="-IN4-")],
           [sg.Button("Submit"), sg.Button("Reset")],
           [sg.Output(size=(40, 20))]
@@ -24,16 +24,46 @@ def gui():
 
       if event == 'Reset':
         window["-IN1-"].reset_group()
+    
+    # Single table aggregations:
+      elif values["-MAX-"] == True:
+        aggregation = "MAX"
+        prefix = "Highest 24h: "
 
-      if values["-MAX-"] == True:
         if values["-IN1-"] == True:
-          print(database.findHighest24h(tablesnames[0]))
+          print(prefix + database.change24h(aggregation, tablesnames[0]))
         elif values["-IN2-"] == True:
-          print(database.findHighest24h(tablesnames[1]))
+          print(prefix + database.change24h(aggregation, tablesnames[1]))
         elif values["-IN3-"] == True:
-          print(database.findHighest24h(tablesnames[2]))
+          print(prefix + database.change24h(aggregation, tablesnames[2]))
         elif values["-IN4-"] == True:
-          print(database.findHighest24h(tablesnames[3]))
-      
+          print(prefix + database.change24h(aggregation, tablesnames[3]))
 
+      elif values["-MIN-"] == True:
+        aggregation = "MIN"
+        prefix = "Lowest 24h: "
+
+        if values["-IN1-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[0]))
+        elif values["-IN2-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[1]))
+        elif values["-IN3-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[2]))
+        elif values["-IN4-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[3]))
+
+      elif values["-AVG-"] == True:
+        aggregation = "AVG"
+        prefix = "Average 24h: "
+
+        if values["-IN1-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[0]))
+        elif values["-IN2-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[1]))
+        elif values["-IN3-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[2]))
+        elif values["-IN4-"] == True:
+          print(prefix + database.change24h(aggregation, tablesnames[3]))
+    # End Single table aggregations.
+    
   window.close()
