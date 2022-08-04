@@ -56,21 +56,23 @@ def showDatabase():
 
 def createTables(csv):
   tableNamesArray = tableNames()
+
   i = 0
   for df in csv:
     cursor.execute("CREATE TABLE " + dbName + " . " + tableNamesArray[i] + "(" +
-    csv[i].columns[0] + " varchar(100) PRIMARY KEY," +
-    csv[i].columns[1] + " varchar(400)," +
-    csv[i].columns[2] + " varchar(100)," +
-    csv[i].columns[3] + " float," +
-    csv[i].columns[4] + " int," +
+    csv[i].columns[0] + " int," +
+    csv[i].columns[1] + " varchar(100) PRIMARY KEY," +
+    csv[i].columns[2] + " varchar(400)," +
+    csv[i].columns[3] + " varchar(100)," +
+    csv[i].columns[4] + " float," +
     csv[i].columns[5] + " int," +
-    csv[i].columns[6] + " float," +
+    csv[i].columns[6] + " int," +
     csv[i].columns[7] + " float," +
     csv[i].columns[8] + " float," +
     csv[i].columns[9] + " float," +
     csv[i].columns[10] + " float," +
-    csv[i].columns[11] + " float)")
+    csv[i].columns[11] + " float," +
+    csv[i].columns[12] + " float)")
     i += 1
 
 #Creating attributes and inserting values into respective tables.
@@ -102,6 +104,13 @@ def change24h(aggregation, table):
 
   # Return procent
   return str(highest[0] * 100) + "%"
+
+def numOwners():
+  # Distict for avoiding duplicate values between Ethereum, Polygon.
+  query = "SELECT DISTINCT Ethereum.name, MAX(Ethereum.numOwners), Polygon.name, MAX(Polygon.numOwners) FROM " + dbName + " . Ethereum JOIN " + dbName + " . Polygon ON Ethereum.ranking = Polygon.ranking GROUP BY Ethereum.name, Polygon.name"
+  cursor.execute(query)
+  highest = cursor.fetchmany(size=5)
+  print(highest)
 
 #readCsv()
 createDatabase()

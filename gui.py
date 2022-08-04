@@ -4,6 +4,7 @@ import database
 def gui():
   tablesnames = database.tableNames()
   # todo: add exit, clear buttons.
+  database.numOwners()
 
   layout = [
           [sg.Text("Function:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
