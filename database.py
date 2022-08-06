@@ -105,9 +105,22 @@ def change24h(aggregation, table):
   # Return procent
   return str(highest[0] * 100) + "%"
 
+def findCollectionName(searchInput):
+    query = f"SELECT Ethereum.name FROM {dbName} . Ethereum WHERE Ethereum.name LIKE '%{searchInput}%'"
+    cursor.execute(query)
+    collectionMatches = cursor.fetchall()
+    
+    return collectionMatches
+
 def numOwners():
-  # Distict for avoiding duplicate values between Ethereum, Polygon.
-  query = "SELECT DISTINCT Ethereum.name, MAX(Ethereum.numOwners), Polygon.name, MAX(Polygon.numOwners) FROM " + dbName + " . Ethereum JOIN " + dbName + " . Polygon ON Ethereum.ranking = Polygon.ranking GROUP BY Ethereum.name, Polygon.name"
+  query = (
+  f"SELECT Ethereum.name, Ethereum.numOwners, Polygon.name, Polygon.numOwners FROM " 
+  f"{dbName} . Ethereum " 
+  f"JOIN {dbName} . Polygon "
+  f"ON Ethereum.ranking = Polygon.ranking "
+  f"ORDER BY Ethereum.ranking, Polygon.ranking;"
+  )
+
   cursor.execute(query)
   highest = cursor.fetchmany(size=5)
   print(highest)
