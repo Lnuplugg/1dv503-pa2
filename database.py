@@ -112,13 +112,15 @@ def findCollectionName(searchInput):
     
     return collectionMatches
 
-def numOwners():
+
+def top5RankedCollections():
   query = (
-  f"SELECT Ethereum.name, Ethereum.numOwners, Polygon.name, Polygon.numOwners FROM " 
-  f"{dbName} . Ethereum " 
-  f"JOIN {dbName} . Polygon "
-  f"ON Ethereum.ranking = Polygon.ranking "
-  f"ORDER BY Ethereum.ranking, Polygon.ranking;"
+    f"SELECT Ethereum.name, Ethereum.numOwners, Polygon.name, Polygon.numOwners, Klaytn.name, Klaytn.numOwners, Solana.name, Solana.numOwners FROM " 
+    f"{dbName} . Ethereum "
+    f"JOIN {dbName} . Polygon ON Ethereum.ranking = Polygon.ranking "
+    f"JOIN {dbName} . Klaytn ON Polygon.ranking = Klaytn.ranking "
+    f"JOIN {dbName} . Solana ON Klaytn.ranking = Solana.ranking "
+    f"ORDER BY Ethereum.ranking, Polygon.ranking, Klaytn.ranking, Solana.ranking"
   )
 
   cursor.execute(query)
