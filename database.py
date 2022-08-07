@@ -96,8 +96,6 @@ def insertData():
 
 # Aggregation MAX, MIN, AVG from gui.
 def change24h(aggregation, table):
-  # query = "SELECT name, oneDayChange FROM " + dbName + ". Ethereum WHERE oneDayChange > 0"
-
   query = "SELECT "+ aggregation + "(oneDayChange) FROM " + dbName + ' . ' + table
   cursor.execute(query)
   highest = cursor.fetchone()
@@ -105,17 +103,17 @@ def change24h(aggregation, table):
   # Return procent
   return str(highest[0] * 100) + "%"
 
-def findCollectionName(searchInput):
-    query = f"SELECT Ethereum.name FROM {dbName} . Ethereum WHERE Ethereum.name LIKE '%{searchInput}%'"
+def findCollectionName(chain, searchInput):
+    query = f"SELECT {chain}.name FROM {dbName} . {chain} WHERE {chain}.name LIKE '%{searchInput}%'"
     cursor.execute(query)
     collectionMatches = cursor.fetchall()
-    
-    return collectionMatches
 
+    return chain, collectionMatches
 
+# JOIN's tables to retrieve the top5 collections accross all blockchains.
 def top5RankedCollections():
   query = (
-    f"SELECT Ethereum.name, Ethereum.numOwners, Polygon.name, Polygon.numOwners, Klaytn.name, Klaytn.numOwners, Solana.name, Solana.numOwners FROM " 
+    f"SELECT Ethereum.ranking, Ethereum.name, Ethereum.numOwners, Polygon.ranking, Polygon.name, Polygon.numOwners, Klaytn.ranking, Klaytn.name, Klaytn.numOwners, Solana.ranking, Solana.name, Solana.numOwners FROM " 
     f"{dbName} . Ethereum "
     f"JOIN {dbName} . Polygon ON Ethereum.ranking = Polygon.ranking "
     f"JOIN {dbName} . Klaytn ON Polygon.ranking = Klaytn.ranking "
@@ -124,8 +122,9 @@ def top5RankedCollections():
   )
 
   cursor.execute(query)
-  highest = cursor.fetchmany(size=5)
-  print(highest)
+  top5 = cursor.fetchmany(size=5)
+
+  return top5
 
 #readCsv()
 createDatabase()
