@@ -126,6 +126,12 @@ def top5RankedCollections():
 
   return top5
 
-#readCsv()
+# Retrieve collections with a supply of 1 - 10. 
+def findLowSupply(chain):
+  query = f"SELECT {chain}.name, {chain}.totalSupply FROM {dbName} . {chain} WHERE totalsupply >= 1 AND totalsupply <= 10 GROUP BY name, totalSupply"
+  cursor.execute(query)
+  totalSupply = cursor.fetchall()
+
+  return totalSupply
+
 createDatabase()
-#insertData()

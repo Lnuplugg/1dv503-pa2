@@ -6,21 +6,21 @@ def gui():
   # todo: add exit, clear buttons.
   
   layout = [
-          [sg.Text("Function:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
-          [sg.Text("")],
+          [sg.Text("Aggregation:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
           [sg.Text("Chain:"), sg.Radio(tablesnames[0], "ALL", default=False, key="-IN1-"), sg.Radio(tablesnames[1], "ALL", default=False, key="-IN2-"), sg.Radio(tablesnames[2], "ALL", default=False, key="-IN3-"), sg.Radio(tablesnames[3], "ALL", default=False, key="-IN4-")],
           [sg.Text("")],
           [sg.Text('Search collection(ex alien, crypto, ape)')],
           [sg.Text('Collection:', size =(10, 1)), sg.InputText()],
           [sg.Text("")],
+          [sg.Radio("Find low supply NFT's)", "unique", default=False, key="-unique-")],
           [sg.Radio("Show top 5 ranked collections", "ALL", default=False, key="-top5-")],
           [sg.Text("")],
           [sg.Button("Submit"), sg.Button("Reset")],
-          [sg.Output(size=(60, 20))]
+          [sg.Output(size=(90, 40))]
           ]
 
   # Create the window
-  window = sg.Window('Opensea NFT Statistics', layout, size=(600,500))
+  window = sg.Window('Opensea NFT Statistics', layout, size=(900,800))
 
   # Create an event loop
   while True:
@@ -31,8 +31,14 @@ def gui():
           break
 
       if event == 'Reset':
+        # Reset chains
         window["-IN1-"].reset_group()
-    
+        # Reset aggregations/grouping
+        window["-MAX-"].reset_group()
+        window["-unique-"].reset_group()
+        # No need to further process selections
+        continue
+        
     # Single table aggregations:
       elif values["-MAX-"] == True:
         aggregation = "MAX"
@@ -88,6 +94,7 @@ def gui():
           matches = database.findCollectionName(tablesnames[3], values[0])
         else:
           print("Select a blockchain")
+          continue
 
         # Print collection matches
         if len(matches[1]) > 0:
@@ -109,5 +116,21 @@ def gui():
           print(f" {tablesnames[2]}\n  Name: {collection[7]}\n  Number of owners: {str(collection[8])}\n")
           print(f" {tablesnames[3]}\n  Name: {collection[10]}\n  Number of owners: {str(collection[11])}\n")
 
+      if values["-unique-"] == True:
+
+        if values["-IN1-"]  == True:
+          uniqueNFTs = database.findLowSupply(tablesnames[0])
+        elif values["-IN2-"] == True:
+          uniqueNFTs = database.findLowSupply(tablesnames[1])
+        elif values["-IN3-"] == True:
+          uniqueNFTs = database.findLowSupply(tablesnames[2])
+        elif values["-IN4-"] == True:
+          uniqueNFTs = database.findLowSupply(tablesnames[3])
+        else:
+          print("Select a blockchain")
+          continue
+
+        for nft in uniqueNFTs:
+          print(f"Name: {nft[0]}, Total supply: {nft[1]}")
 
   window.close()
