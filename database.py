@@ -134,4 +134,24 @@ def findLowSupply(chain):
 
   return totalSupply
 
+# Retrieve collections with most owners
+def findmostOwners(chain):
+  query = f"SELECT {chain}.name, {chain}.numOwners FROM {dbName} . {chain} GROUP BY name, numOwners ORDER BY {chain}.numOwners DESC LIMIT 10"
+  cursor.execute(query)
+  mostOwners = cursor.fetchall()
+
+  return mostOwners
+
+def createView():
+  query = f"CREATE VIEW {dbName} . DetailsView AS SELECT Ethereum.name, Ethereum.logo, Polygon.name AS PolygonName, Polygon.logo AS PolygonLogo FROM {dbName} . Ethereum, {dbName} . Polygon WHERE Ethereum.ranking = Polygon.ranking ORDER BY Ethereum.ranking, Polygon.ranking LIMIT 10"
+
+  cursor.execute(query)
+
+def useView():
+  query = f"SELECT * FROM {dbName} . DetailsView"
+  cursor.execute(query)
+  collectionImages = cursor.fetchall()
+
+  return collectionImages
+
 createDatabase()

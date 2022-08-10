@@ -4,16 +4,19 @@ import database
 def gui():
   tablesnames = database.tableNames()
   # todo: add exit, clear buttons.
+  database.useView()
   
   layout = [
           [sg.Text("Aggregation:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
           [sg.Text("Chain:"), sg.Radio(tablesnames[0], "ALL", default=False, key="-IN1-"), sg.Radio(tablesnames[1], "ALL", default=False, key="-IN2-"), sg.Radio(tablesnames[2], "ALL", default=False, key="-IN3-"), sg.Radio(tablesnames[3], "ALL", default=False, key="-IN4-")],
           [sg.Text("")],
+          [sg.Image('2C.png')]
           [sg.Text('Search collection(ex alien, crypto, ape)')],
           [sg.Text('Collection:', size =(10, 1)), sg.InputText()],
           [sg.Text("")],
+          [sg.Radio("Show top 10 collections with the most owners", "mostowners", default=False, key="-top10-")],
           [sg.Radio("Find low supply NFT's)", "unique", default=False, key="-unique-")],
-          [sg.Radio("Show top 5 ranked collections", "ALL", default=False, key="-top5-")],
+          [sg.Radio("Show the top 5 ranked collections", "ALL", default=False, key="-top5-")],
           [sg.Text("")],
           [sg.Button("Submit"), sg.Button("Reset")],
           [sg.Output(size=(90, 40))]
@@ -115,6 +118,22 @@ def gui():
           print(f" {tablesnames[1]}\n  Name: {collection[4]}\n  Number of owners: {str(collection[5])}\n")
           print(f" {tablesnames[2]}\n  Name: {collection[7]}\n  Number of owners: {str(collection[8])}\n")
           print(f" {tablesnames[3]}\n  Name: {collection[10]}\n  Number of owners: {str(collection[11])}\n")
+
+      if values["-top10-"] == True:
+        if values["-IN1-"]  == True:
+          uniqueNFTs = database.findmostOwners(tablesnames[0])
+        elif values["-IN2-"] == True:
+          uniqueNFTs = database.findmostOwners(tablesnames[1])
+        elif values["-IN3-"] == True:
+          uniqueNFTs = database.findmostOwners(tablesnames[2])
+        elif values["-IN4-"] == True:
+          uniqueNFTs = database.findmostOwners(tablesnames[3])
+        else:
+          print("Select a blockchain")
+          continue
+
+        for nft in uniqueNFTs:
+          print(f"Name: {nft[0]}, Owners: {nft[1]}")
 
       if values["-unique-"] == True:
 
