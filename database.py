@@ -1,3 +1,4 @@
+from re import ASCII
 from mysql.connector import connect, Error
 import pandas as pd
 import numpy as np
@@ -142,16 +143,32 @@ def findmostOwners(chain):
 
   return mostOwners
 
+# Create a VIEW based on name and floor price, dicarding null values.
 def createView():
-  query = f"CREATE VIEW {dbName} . DetailsView AS SELECT Ethereum.name, Ethereum.logo, Polygon.name AS PolygonName, Polygon.logo AS PolygonLogo FROM {dbName} . Ethereum, {dbName} . Polygon WHERE Ethereum.ranking = Polygon.ranking ORDER BY Ethereum.ranking, Polygon.ranking LIMIT 10"
+  query = f"CREATE VIEW {dbName} . DetailsView AS SELECT "
+  f"Ethereum.ranking AS EthereumRanking, Ethereum.name AS EthereumName, Ethereum.nativePaymentAsset AS EthereumPayment, Ethereum.floorPrice AS EthereumFloorPrice, " 
+  f"Polygon.ranking AS PolygonRanking, Polygon.name AS PolygonName, Polygon. nativePaymentAsset AS PolygonPayment, Polygon.floorPrice AS PolygonFloorPrice "
+  f"FROM {dbName} . Ethereum, {dbName} . Polygon "
+  f"WHERE Ethereum.ranking = Polygon.ranking AND Ethereum.floorprice IS NOT NULL AND Polygon.floorPrice IS NOT NULL "
+  f"ORDER BY Ethereum.ranking, Polygon.ranking "
 
   cursor.execute(query)
 
-def useView():
-  query = f"SELECT * FROM {dbName} . DetailsView"
-  cursor.execute(query)
-  collectionImages = cursor.fetchall()
+#Retrieve collection name and lowest/highest floor price from VIEW. 
+def useView(order):
+  if order == "cheapest":
+    sortOrder = "ASC"
+  elif order == "expensive":
+    sortOrder = "DESC"
 
-  return collectionImages
+  query = f"SELECT EthereumName, EthereumFloorPrice FROM {dbName} . DetailsView ORDER BY EthereumFloorPrice {sortOrder} LIMIT 10"
+  cursor.execute(query)
+  ethFloorPrice = cursor.fetchall()
+
+  query = f"SELECT PolygonName, PolygonFloorPrice FROM {dbName} . DetailsView ORDER BY PolygonFloorPrice {sortOrder} LIMIT 10"
+  cursor.execute(query)
+  polygonFloorPrice = cursor.fetchall()
+
+  return ethFloorPrice, polygonFloorPrice
 
 createDatabase()

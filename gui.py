@@ -4,22 +4,27 @@ import database
 def gui():
   tablesnames = database.tableNames()
   # todo: add exit, clear buttons.
-  database.useView()
+  #database.createView()
+ # database.useView()
+  #[sg.Radio("View floorprice: ", "ALL", default=False, key="-top5-")],
   
+
   layout = [
           [sg.Text("Aggregation:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
           [sg.Text("Chain:"), sg.Radio(tablesnames[0], "ALL", default=False, key="-IN1-"), sg.Radio(tablesnames[1], "ALL", default=False, key="-IN2-"), sg.Radio(tablesnames[2], "ALL", default=False, key="-IN3-"), sg.Radio(tablesnames[3], "ALL", default=False, key="-IN4-")],
           [sg.Text("")],
-          [sg.Image('2C.png')]
           [sg.Text('Search collection(ex alien, crypto, ape)')],
           [sg.Text('Collection:', size =(10, 1)), sg.InputText()],
           [sg.Text("")],
           [sg.Radio("Show top 10 collections with the most owners", "mostowners", default=False, key="-top10-")],
-          [sg.Radio("Find low supply NFT's)", "unique", default=False, key="-unique-")],
+          [sg.Radio("Find low supply NFT's", "unique", default=False, key="-unique-")],
           [sg.Radio("Show the top 5 ranked collections", "ALL", default=False, key="-top5-")],
           [sg.Text("")],
-          [sg.Button("Submit"), sg.Button("Reset")],
-          [sg.Output(size=(90, 40))]
+          [sg.Text("View floorPrice(Ethereum, Polygon): ")],
+          [sg.Text("  Sort order: "), sg.Radio("Cheapest", "ALL", default=False, key="-cheapest-"), sg.Radio("Most expensive", "ALL", default=False, key="-expensive-")],
+          [sg.Text("")],
+          [sg.Button("Submit"), sg.Button("Reset"), sg.Button("Clear Textbox")],
+          [sg.Output(size=(90, 40), key = 'output')]
           ]
 
   # Create the window
@@ -39,7 +44,12 @@ def gui():
         # Reset aggregations/grouping
         window["-MAX-"].reset_group()
         window["-unique-"].reset_group()
+        window["-top10-"].reset_group()
         # No need to further process selections
+        continue
+
+      if event == 'Clear Textbox':
+        window.FindElement('output').Update("")
         continue
         
     # Single table aggregations:
@@ -55,6 +65,8 @@ def gui():
           print(prefix + database.change24h(aggregation, tablesnames[2]))
         elif values["-IN4-"] == True:
           print(prefix + database.change24h(aggregation, tablesnames[3]))
+        else:
+          print("Select a blockchain")
 
       elif values["-MIN-"] == True:
         aggregation = "MIN"
@@ -68,6 +80,8 @@ def gui():
           print(prefix + database.change24h(aggregation, tablesnames[2]))
         elif values["-IN4-"] == True:
           print(prefix + database.change24h(aggregation, tablesnames[3]))
+        else:
+          print("Select a blockchain")
 
       elif values["-AVG-"] == True:
         aggregation = "AVG"
@@ -81,6 +95,8 @@ def gui():
           print(prefix + database.change24h(aggregation, tablesnames[2]))
         elif values["-IN4-"] == True:
           print(prefix + database.change24h(aggregation, tablesnames[3]))
+        else:
+          print("Select a blockchain")
     # End Single table aggregations.
 
       # Find collection name.
@@ -103,7 +119,7 @@ def gui():
         if len(matches[1]) > 0:
           print(matches[0] + ": " )
           for match in matches[1]:
-            print(match)
+            print(match[0])
 
         else:
           print("No Matches")
@@ -151,5 +167,27 @@ def gui():
 
         for nft in uniqueNFTs:
           print(f"Name: {nft[0]}, Total supply: {nft[1]}")
+
+      if values["-cheapest-"] == True:
+        cheapestCollections = database.useView("cheapest")
+
+        for (eth, poly) in zip(cheapestCollections[0], cheapestCollections[1]):
+          print(tablesnames[0])
+          print("Name: " + eth[0] + " Floor price: " + str(eth[1]))
+          print(tablesnames[1])
+          print("Name: " + poly[0] + " Floor price: " + str(poly[1]))
+          print("")
+
+      elif values["-expensive-"] == True:
+        expensiveCollections = database.useView("expensive")
+
+        for (eth, poly) in zip(expensiveCollections[0], expensiveCollections[1]):
+          print(tablesnames[0])
+          print("Name: " + eth[0] + " Floor price: " + str(eth[1]))
+          print(tablesnames[1])
+          print("Name: " + poly[0] + " Floor price: " + str(poly[1]))
+          print("")
+
+      print("")
 
   window.close()
