@@ -1,4 +1,3 @@
-from re import ASCII
 from mysql.connector import connect, Error
 import pandas as pd
 import numpy as np
@@ -44,9 +43,11 @@ def createDatabase():
     cursor.execute("CREATE DATABASE " + dbName)
     createTables(inputData)
     insertData()
+    createView()
     print("Database " + dbName + " created.")
-  else:
-    gui.gui()
+    print("View Created")
+  
+  gui.gui()
 
 def showDatabase():
   cursor.execute("SHOW DATABASES")
@@ -105,11 +106,11 @@ def change24h(aggregation, table):
   return str(highest[0] * 100) + "%"
 
 def findCollectionName(chain, searchInput):
-    query = f"SELECT {chain}.name FROM {dbName} . {chain} WHERE {chain}.name LIKE '%{searchInput}%'"
-    cursor.execute(query)
-    collectionMatches = cursor.fetchall()
+  query = f"SELECT {chain}.name FROM {dbName} . {chain} WHERE {chain}.name LIKE '%{searchInput}%'"
+  cursor.execute(query)
+  collectionMatches = cursor.fetchall()
 
-    return chain, collectionMatches
+  return chain, collectionMatches
 
 # JOIN's tables to retrieve the top5 collections accross all blockchains.
 def top5RankedCollections():
@@ -145,12 +146,14 @@ def findmostOwners(chain):
 
 # Create a VIEW based on name and floor price, dicarding null values.
 def createView():
-  query = f"CREATE VIEW {dbName} . DetailsView AS SELECT "
+  query = (
+    f"CREATE VIEW {dbName} . DetailsView AS SELECT "
   f"Ethereum.ranking AS EthereumRanking, Ethereum.name AS EthereumName, Ethereum.nativePaymentAsset AS EthereumPayment, Ethereum.floorPrice AS EthereumFloorPrice, " 
-  f"Polygon.ranking AS PolygonRanking, Polygon.name AS PolygonName, Polygon. nativePaymentAsset AS PolygonPayment, Polygon.floorPrice AS PolygonFloorPrice "
+  f"Polygon.ranking AS PolygonRanking, Polygon.name AS PolygonName, Polygon.nativePaymentAsset AS PolygonPayment, Polygon.floorPrice AS PolygonFloorPrice "
   f"FROM {dbName} . Ethereum, {dbName} . Polygon "
   f"WHERE Ethereum.ranking = Polygon.ranking AND Ethereum.floorprice IS NOT NULL AND Polygon.floorPrice IS NOT NULL "
-  f"ORDER BY Ethereum.ranking, Polygon.ranking "
+  f"ORDER BY Ethereum.ranking, Polygon.ranking"
+  )
 
   cursor.execute(query)
 

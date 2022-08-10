@@ -3,11 +3,6 @@ import database
 
 def gui():
   tablesnames = database.tableNames()
-  # todo: add exit, clear buttons.
-  #database.createView()
- # database.useView()
-  #[sg.Radio("View floorprice: ", "ALL", default=False, key="-top5-")],
-  
 
   layout = [
           [sg.Text("Aggregation:"), sg.Radio("MAX", "agg", default=False, key="-MAX-"), sg.Radio("MIN", "agg", default=False, key="-MIN-"), sg.Radio("AVG", "agg", default=False, key="-AVG-")],
@@ -29,6 +24,8 @@ def gui():
 
   # Create the window
   window = sg.Window('Opensea NFT Statistics', layout, size=(900,800))
+
+  
 
   # Create an event loop
   while True:
@@ -54,6 +51,7 @@ def gui():
         
     # Single table aggregations:
       elif values["-MAX-"] == True:
+        print("Function: change24h()")
         aggregation = "MAX"
         prefix = "Highest 24h: "
 
@@ -69,6 +67,7 @@ def gui():
           print("Select a blockchain")
 
       elif values["-MIN-"] == True:
+        print("Function: change24h()")
         aggregation = "MIN"
         prefix = "Lowest 24h: "
 
@@ -84,6 +83,7 @@ def gui():
           print("Select a blockchain")
 
       elif values["-AVG-"] == True:
+        print("Function: change24h()")
         aggregation = "AVG"
         prefix = "Average 24h: "
 
@@ -101,6 +101,7 @@ def gui():
 
       # Find collection name.
       if values[0]:
+        print("Function: findCollectionName()")
         matches = []
 
         if values["-IN1-"]  == True:
@@ -126,6 +127,7 @@ def gui():
           
       # Display the top 5 collections across all blockchains.
       if values["-top5-"] == True:
+        print("Function: top5RankedCollections()")
         collections = database.top5RankedCollections()
         
         for collection in collections:
@@ -136,6 +138,7 @@ def gui():
           print(f" {tablesnames[3]}\n  Name: {collection[10]}\n  Number of owners: {str(collection[11])}\n")
 
       if values["-top10-"] == True:
+        print("Function: findmostOwners()")
         if values["-IN1-"]  == True:
           uniqueNFTs = database.findmostOwners(tablesnames[0])
         elif values["-IN2-"] == True:
@@ -152,7 +155,7 @@ def gui():
           print(f"Name: {nft[0]}, Owners: {nft[1]}")
 
       if values["-unique-"] == True:
-
+        print("Function: findLowSupply()")
         if values["-IN1-"]  == True:
           uniqueNFTs = database.findLowSupply(tablesnames[0])
         elif values["-IN2-"] == True:
@@ -169,6 +172,7 @@ def gui():
           print(f"Name: {nft[0]}, Total supply: {nft[1]}")
 
       if values["-cheapest-"] == True:
+        print("useView()")
         cheapestCollections = database.useView("cheapest")
 
         for (eth, poly) in zip(cheapestCollections[0], cheapestCollections[1]):
@@ -179,6 +183,7 @@ def gui():
           print("")
 
       elif values["-expensive-"] == True:
+        print("useView()")
         expensiveCollections = database.useView("expensive")
 
         for (eth, poly) in zip(expensiveCollections[0], expensiveCollections[1]):
