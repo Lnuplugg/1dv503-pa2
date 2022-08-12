@@ -34,6 +34,7 @@ def readCsv():
 
   return [eths, polys, klaytn, solana]
 
+# Create the database if it doesn't exist.
 def createDatabase():
   db = showDatabase()
   
@@ -53,17 +54,18 @@ def showDatabase():
   cursor.execute("SHOW DATABASES")
 
   for db in cursor:
-    if db == (dbName,):
+    if db == (dbName):
       return db
 
+#Creating the tables with the attributes from the dataframe.
 def createTables(csv):
   tableNamesArray = tableNames()
 
   i = 0
   for df in csv:
     cursor.execute("CREATE TABLE " + dbName + " . " + tableNamesArray[i] + "(" +
-    csv[i].columns[0] + " int," +
-    csv[i].columns[1] + " varchar(100) PRIMARY KEY," +
+    csv[i].columns[0] + " int PRIMARY KEY," +
+    csv[i].columns[1] + " varchar(100)," +
     csv[i].columns[2] + " varchar(400)," +
     csv[i].columns[3] + " varchar(100)," +
     csv[i].columns[4] + " float," +
@@ -77,6 +79,8 @@ def createTables(csv):
     csv[i].columns[12] + " float)")
     i += 1
 
+  cursor.execute(f"CREATE TABLE {dbName} . User (username varchar(100) PRIMARY KEY, collectionToTrack varchar(100), blockchain varchar(20))")
+
 #Creating attributes and inserting values into respective tables.
 def insertData():
   csv = readCsv()
@@ -89,14 +93,19 @@ def insertData():
 
       # Commit each row in a file(dataframe) to database.
       for j, row in csv[attributeIndex].iterrows():
-          sql = "INSERT INTO `Andersson` . " + i + "(`" + attributes + "`) VALUES (" + "%s," * (len(row)-1) + "%s)"
+          sql = "INSERT INTO " + dbName + " . " + i + "(`" + attributes + "`) VALUES (" + "%s," * (len(row)-1) + "%s)"
           cursor.execute(sql, tuple(row))
           db.commit()
       attributeIndex += 1
+
+    # Inserts user data with a name and the collection they want to track.
+    sqlUserdata = f"INSERT INTO {dbName} . User (username, collectionToTrack, Blockchain) VALUES ('user1', 'Bored Ape Yacht Club', 'Ethereum'), ('user2', 'Solana Monkey Business', 'Solana'), ('user3', 'Crypto Unicorns Land Market', 'Polygon')"
+    cursor.execute(sqlUserdata)
+    db.commit()
   except Error as e:
     print(e)
 
-# Aggregation MAX, MIN, AVG from gui.
+# Aggregation MAX, MIN, AVG from gui input.
 def change24h(aggregation, table):
   query = "SELECT "+ aggregation + "(oneDayChange) FROM " + dbName + ' . ' + table
   cursor.execute(query)
@@ -105,6 +114,7 @@ def change24h(aggregation, table):
   # Return procent
   return str(highest[0] * 100) + "%"
 
+# Find partial match of collection name.
 def findCollectionName(chain, searchInput):
   query = f"SELECT {chain}.name FROM {dbName} . {chain} WHERE {chain}.name LIKE '%{searchInput}%'"
   cursor.execute(query)
@@ -147,7 +157,7 @@ def findmostOwners(chain):
 # Create a VIEW based on name and floor price, dicarding null values.
 def createView():
   query = (
-    f"CREATE VIEW {dbName} . DetailsView AS SELECT "
+  f"CREATE VIEW {dbName} . DetailsView AS SELECT "
   f"Ethereum.ranking AS EthereumRanking, Ethereum.name AS EthereumName, Ethereum.nativePaymentAsset AS EthereumPayment, Ethereum.floorPrice AS EthereumFloorPrice, " 
   f"Polygon.ranking AS PolygonRanking, Polygon.name AS PolygonName, Polygon.nativePaymentAsset AS PolygonPayment, Polygon.floorPrice AS PolygonFloorPrice "
   f"FROM {dbName} . Ethereum, {dbName} . Polygon "
@@ -157,6 +167,22 @@ def createView():
 
   cursor.execute(query)
 
+# Statistics for collections that a user might want to track.
+def userCollectionStats():
+  query = (
+    f"SELECT User.username, User.collectionToTrack, User.blockchain, Ethereum.oneDayChange, Polygon.oneDayChange, Klaytn.oneDayChange, Solana.oneDayChange FROM " 
+    f"{dbName} . User "
+    f"LEFT JOIN {dbName} . Ethereum ON Ethereum.name = User.collectionToTrack "
+    f"LEFT JOIN {dbName} . Polygon ON Polygon.name = User.collectionToTrack "
+    f"LEFT JOIN {dbName} . Klaytn ON Klaytn.name = User.collectionToTrack "
+    f"LEFT JOIN {dbName} . Solana ON Solana.name = User.collectionToTrack "
+  )
+
+  cursor.execute(query)
+  usertrackedCollectionStats = cursor.fetchall()
+
+  return usertrackedCollectionStats
+
 #Retrieve collection name and lowest/highest floor price from VIEW. 
 def useView(order):
   if order == "cheapest":
@@ -164,10 +190,12 @@ def useView(order):
   elif order == "expensive":
     sortOrder = "DESC"
 
+  #Ethereum floor price
   query = f"SELECT EthereumName, EthereumFloorPrice FROM {dbName} . DetailsView ORDER BY EthereumFloorPrice {sortOrder} LIMIT 10"
   cursor.execute(query)
   ethFloorPrice = cursor.fetchall()
 
+  # Polygon floor price
   query = f"SELECT PolygonName, PolygonFloorPrice FROM {dbName} . DetailsView ORDER BY PolygonFloorPrice {sortOrder} LIMIT 10"
   cursor.execute(query)
   polygonFloorPrice = cursor.fetchall()

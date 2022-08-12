@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import numpy as np
 import database
 
 def gui():
@@ -13,17 +14,22 @@ def gui():
           [sg.Text("")],
           [sg.Radio("Show top 10 collections with the most owners", "mostowners", default=False, key="-top10-")],
           [sg.Radio("Find low supply NFT's", "unique", default=False, key="-unique-")],
-          [sg.Radio("Show the top 5 ranked collections", "ALL", default=False, key="-top5-")],
           [sg.Text("")],
+          [sg.Text("No need to select a blockchain for the ones below:")],
           [sg.Text("View floorPrice(Ethereum, Polygon): ")],
           [sg.Text("  Sort order: "), sg.Radio("Cheapest", "ALL", default=False, key="-cheapest-"), sg.Radio("Most expensive", "ALL", default=False, key="-expensive-")],
           [sg.Text("")],
+          [sg.Radio("Show the top 5 ranked collections", "ALL", default=False, key="-top5-")],
+          [sg.Text("")],
+          [sg.Text("Display and compare user tracked collections: ")],
+          [sg.Text("User Stats: "), sg.Radio("users", "ALL", default=False, key="-users-")],
+          [sg.Text("")],
           [sg.Button("Submit"), sg.Button("Reset"), sg.Button("Clear Textbox")],
-          [sg.Output(size=(90, 40), key = 'output')]
+          [sg.Output(size=(90, 80), key = 'output')]
           ]
 
   # Create the window
-  window = sg.Window('Opensea NFT Statistics', layout, size=(900,800))
+  window = sg.Window('Opensea NFT Statistics', layout, size=(900,1000))
 
   
 
@@ -193,6 +199,28 @@ def gui():
           print("Name: " + poly[0] + " Floor price: " + str(poly[1]))
           print("")
 
-      print("")
+      if values["-users-"] == True:
+        print("userCollectionStats()")
+        userStats = database.userCollectionStats()
+        
+        for d in userStats:
+          print("Username: " + d[0])
+          print("Collection: " + d[1])
+          print("Blockchain: " + d[2])
 
+          if d[3] is None:
+            i = 4
+
+            while d[i] is None:
+              i += 1
+            print("One day change: ", d[i])
+
+          else:
+            print("One day change: ", d[3])
+
+          print("")
+
+      print("")    
+
+       
   window.close()
